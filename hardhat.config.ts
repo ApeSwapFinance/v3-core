@@ -3,6 +3,8 @@ import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-waffle'
 import 'hardhat-typechain'
 
+require('dotenv').config()
+
 export default {
   networks: {
     hardhat: {
@@ -39,13 +41,29 @@ export default {
       url: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_API_KEY}`,
     },
     polygon: {
-      url: `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      url: 'https://polygon-rpc.com',
+      chainId: 137,
+      // gasPrice: '190000000000',
+      accounts: {
+        mnemonic: process.env.MAINNET_DEPLOYER_KEY,
+      },
+    },
+    bscTestnet: {
+      url: 'https://data-seed-prebsc-1-s3.binance.org:8545',
+      chainId: 97,
+      accounts: {
+        mnemonic: process.env.TESTNET_DEPLOYER_KEY,
+      },
     },
   },
   etherscan: {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      mainnet: process.env.ETHERSCAN_API_KEY,
+      bscTestnet: process.env.BSCSCAN_API_KEY,
+      polygon: process.env.POLYGONSCAN_API_KEY,
+    },
   },
   solidity: {
     version: '0.8.12',
