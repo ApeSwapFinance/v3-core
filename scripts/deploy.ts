@@ -10,7 +10,7 @@ import getNetworkConfig from '../deploy-config'
  */
 async function main() {
   const { tickMath, WNATIVE } = getNetworkConfig(hre.network.name)
-  const Factory = await ethers.getContractFactory('UniswapV3Factory')
+  const Factory = await ethers.getContractFactory('ApeSwapV3Factory')
   const factory = await Factory.deploy()
   console.log('Factory deployed at: ', factory.address)
   console.log('npx hardhat verify --network', hre.network.name, factory.address)

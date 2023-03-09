@@ -19,7 +19,7 @@ async function main() {
   }
   console.log(actualTickMath.address)
 
-  const Factory = await ethers.getContractFactory('UniswapV3Factory', {
+  const Factory = await ethers.getContractFactory('ApeSwapV3Factory', {
     libraries: { TickMath: actualTickMath.address },
   })
   const factory = await Factory.deploy()

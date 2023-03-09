@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity =0.8.12;
 
-import {IUniswapV3PoolImmutables, IUniswapV3PoolState, IUniswapV3PoolActions, IUniswapV3PoolDerivedState, IUniswapV3PoolOwnerActions, IUniswapV3Pool} from './interfaces/IUniswapV3Pool.sol';
+import {IApeSwapV3PoolImmutables, IApeSwapV3PoolState, IApeSwapV3PoolActions, IApeSwapV3PoolDerivedState, IApeSwapV3PoolOwnerActions, IApeSwapV3Pool} from './interfaces/IApeSwapV3Pool.sol';
 
 import {NoDelegateCall} from './NoDelegateCall.sol';
 
@@ -18,14 +18,14 @@ import {TickMath} from './libraries/TickMath.sol';
 import {SqrtPriceMath} from './libraries/SqrtPriceMath.sol';
 import {SwapMath} from './libraries/SwapMath.sol';
 
-import {IUniswapV3PoolDeployer} from './interfaces/IUniswapV3PoolDeployer.sol';
-import {IUniswapV3Factory} from './interfaces/IUniswapV3Factory.sol';
+import {IApeSwapV3PoolDeployer} from './interfaces/IApeSwapV3PoolDeployer.sol';
+import {IApeSwapV3Factory} from './interfaces/IApeSwapV3Factory.sol';
 import {IERC20Minimal} from './interfaces/IERC20Minimal.sol';
-import {IUniswapV3MintCallback} from './interfaces/callback/IUniswapV3MintCallback.sol';
-import {IUniswapV3SwapCallback} from './interfaces/callback/IUniswapV3SwapCallback.sol';
-import {IUniswapV3FlashCallback} from './interfaces/callback/IUniswapV3FlashCallback.sol';
+import {IApeSwapV3MintCallback} from './interfaces/callback/IApeSwapV3MintCallback.sol';
+import {IApeSwapV3SwapCallback} from './interfaces/callback/IApeSwapV3SwapCallback.sol';
+import {IApeSwapV3FlashCallback} from './interfaces/callback/IApeSwapV3FlashCallback.sol';
 
-contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
+contract ApeSwapV3Pool is IApeSwapV3Pool, NoDelegateCall {
     using SafeCast for uint256;
     using SafeCast for int256;
     using Tick for mapping(int24 => Tick.Info);
@@ -34,19 +34,19 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
     using Position for Position.Info;
     using Oracle for Oracle.Observation[65535];
 
-    /// @inheritdoc IUniswapV3PoolImmutables
+    /// @inheritdoc IApeSwapV3PoolImmutables
     address public immutable override factory;
-    /// @inheritdoc IUniswapV3PoolImmutables
+    /// @inheritdoc IApeSwapV3PoolImmutables
     address public immutable override token0;
-    /// @inheritdoc IUniswapV3PoolImmutables
+    /// @inheritdoc IApeSwapV3PoolImmutables
     address public immutable override token1;
-    /// @inheritdoc IUniswapV3PoolImmutables
+    /// @inheritdoc IApeSwapV3PoolImmutables
     uint24 public immutable override fee;
 
-    /// @inheritdoc IUniswapV3PoolImmutables
+    /// @inheritdoc IApeSwapV3PoolImmutables
     int24 public immutable override tickSpacing;
 
-    /// @inheritdoc IUniswapV3PoolImmutables
+    /// @inheritdoc IApeSwapV3PoolImmutables
     uint128 public immutable override maxLiquidityPerTick;
 
     struct Slot0 {
@@ -66,12 +66,12 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
         // whether the pool is locked
         bool unlocked;
     }
-    /// @inheritdoc IUniswapV3PoolState
+    /// @inheritdoc IApeSwapV3PoolState
     Slot0 public override slot0;
 
-    /// @inheritdoc IUniswapV3PoolState
+    /// @inheritdoc IApeSwapV3PoolState
     uint256 public override feeGrowthGlobal0X128;
-    /// @inheritdoc IUniswapV3PoolState
+    /// @inheritdoc IApeSwapV3PoolState
     uint256 public override feeGrowthGlobal1X128;
 
     // accumulated protocol fees in token0/token1 units
@@ -79,19 +79,19 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
         uint128 token0;
         uint128 token1;
     }
-    /// @inheritdoc IUniswapV3PoolState
+    /// @inheritdoc IApeSwapV3PoolState
     ProtocolFees public override protocolFees;
 
-    /// @inheritdoc IUniswapV3PoolState
+    /// @inheritdoc IApeSwapV3PoolState
     uint128 public override liquidity;
 
-    /// @inheritdoc IUniswapV3PoolState
+    /// @inheritdoc IApeSwapV3PoolState
     mapping(int24 => Tick.Info) public override ticks;
-    /// @inheritdoc IUniswapV3PoolState
+    /// @inheritdoc IApeSwapV3PoolState
     mapping(int16 => uint256) public override tickBitmap;
-    /// @inheritdoc IUniswapV3PoolState
+    /// @inheritdoc IApeSwapV3PoolState
     mapping(bytes32 => Position.Info) public override positions;
-    /// @inheritdoc IUniswapV3PoolState
+    /// @inheritdoc IApeSwapV3PoolState
     Oracle.Observation[65535] public override observations;
 
     /// @dev Mutually exclusive reentrancy protection into the pool to/from a method. This method also prevents entrance
@@ -104,15 +104,15 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
         slot0.unlocked = true;
     }
 
-    /// @dev Prevents calling a function from anyone except the address returned by IUniswapV3Factory#owner()
+    /// @dev Prevents calling a function from anyone except the address returned by IApeSwapV3Factory#owner()
     modifier onlyFactoryOwner() {
-        require(msg.sender == IUniswapV3Factory(factory).owner());
+        require(msg.sender == IApeSwapV3Factory(factory).owner());
         _;
     }
 
     constructor() {
         int24 _tickSpacing;
-        (factory, token0, token1, fee, _tickSpacing) = IUniswapV3PoolDeployer(msg.sender).parameters();
+        (factory, token0, token1, fee, _tickSpacing) = IApeSwapV3PoolDeployer(msg.sender).parameters();
         tickSpacing = _tickSpacing;
 
         maxLiquidityPerTick = Tick.tickSpacingToMaxLiquidityPerTick(_tickSpacing);
@@ -152,7 +152,7 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
         return abi.decode(data, (uint256));
     }
 
-    /// @inheritdoc IUniswapV3PoolDerivedState
+    /// @inheritdoc IApeSwapV3PoolDerivedState
     function snapshotCumulativesInside(int24 tickLower, int24 tickUpper)
         external
         view
@@ -231,7 +231,7 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
         }
     }
 
-    /// @inheritdoc IUniswapV3PoolDerivedState
+    /// @inheritdoc IApeSwapV3PoolDerivedState
     function observe(uint32[] calldata secondsAgos)
         external
         view
@@ -250,7 +250,7 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
             );
     }
 
-    /// @inheritdoc IUniswapV3PoolActions
+    /// @inheritdoc IApeSwapV3PoolActions
     function increaseObservationCardinalityNext(uint16 observationCardinalityNext)
         external
         override
@@ -267,7 +267,7 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
             emit IncreaseObservationCardinalityNext(observationCardinalityNextOld, observationCardinalityNextNew);
     }
 
-    /// @inheritdoc IUniswapV3PoolActions
+    /// @inheritdoc IApeSwapV3PoolActions
     /// @dev not locked because it initializes unlocked
     function initialize(uint160 sqrtPriceX96) external override {
         if (slot0.sqrtPriceX96 != 0) revert AI();
@@ -459,7 +459,7 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
         }
     }
 
-    /// @inheritdoc IUniswapV3PoolActions
+    /// @inheritdoc IApeSwapV3PoolActions
     /// @dev noDelegateCall is applied indirectly via _modifyPosition
     function mint(
         address recipient,
@@ -485,14 +485,14 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
         uint256 balance1Before;
         if (amount0 > 0) balance0Before = balance0();
         if (amount1 > 0) balance1Before = balance1();
-        IUniswapV3MintCallback(msg.sender).uniswapV3MintCallback(amount0, amount1, data);
+        IApeSwapV3MintCallback(msg.sender).ApeSwapV3MintCallback(amount0, amount1, data);
         if (amount0 > 0 && balance0Before + amount0 > balance0()) revert M0();
         if (amount1 > 0 && balance1Before + amount1 > balance1()) revert M1();
 
         emit Mint(msg.sender, recipient, tickLower, tickUpper, amount, amount0, amount1);
     }
 
-    /// @inheritdoc IUniswapV3PoolActions
+    /// @inheritdoc IApeSwapV3PoolActions
     function collect(
         address recipient,
         int24 tickLower,
@@ -520,7 +520,7 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
         emit Collect(msg.sender, recipient, tickLower, tickUpper, amount0, amount1);
     }
 
-    /// @inheritdoc IUniswapV3PoolActions
+    /// @inheritdoc IApeSwapV3PoolActions
     /// @dev noDelegateCall is applied indirectly via _modifyPosition
     function burn(
         int24 tickLower,
@@ -601,7 +601,7 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
         uint256 feeAmount;
     }
 
-    /// @inheritdoc IUniswapV3PoolActions
+    /// @inheritdoc IApeSwapV3PoolActions
     function swap(
         address recipient,
         bool zeroForOne,
@@ -802,7 +802,7 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
             }
 
             uint256 balance0Before = balance0();
-            IUniswapV3SwapCallback(msg.sender).uniswapV3SwapCallback(amount0, amount1, data);
+            IApeSwapV3SwapCallback(msg.sender).ApeSwapV3SwapCallback(amount0, amount1, data);
             if (balance0Before + uint256(amount0) > balance0()) revert IIA();
         } else {
             unchecked {
@@ -810,7 +810,7 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
             }
 
             uint256 balance1Before = balance1();
-            IUniswapV3SwapCallback(msg.sender).uniswapV3SwapCallback(amount0, amount1, data);
+            IApeSwapV3SwapCallback(msg.sender).ApeSwapV3SwapCallback(amount0, amount1, data);
             if (balance1Before + uint256(amount1) > balance1()) revert IIA();
         }
 
@@ -818,7 +818,7 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
         slot0.unlocked = true;
     }
 
-    /// @inheritdoc IUniswapV3PoolActions
+    /// @inheritdoc IApeSwapV3PoolActions
     function flash(
         address recipient,
         uint256 amount0,
@@ -836,7 +836,7 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
         if (amount0 > 0) TransferHelper.safeTransfer(token0, recipient, amount0);
         if (amount1 > 0) TransferHelper.safeTransfer(token1, recipient, amount1);
 
-        IUniswapV3FlashCallback(msg.sender).uniswapV3FlashCallback(fee0, fee1, data);
+        IApeSwapV3FlashCallback(msg.sender).ApeSwapV3FlashCallback(fee0, fee1, data);
 
         uint256 balance0After = balance0();
         uint256 balance1After = balance1();
@@ -866,7 +866,7 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
         }
     }
 
-    /// @inheritdoc IUniswapV3PoolOwnerActions
+    /// @inheritdoc IApeSwapV3PoolOwnerActions
     function setFeeProtocol(uint8 feeProtocol0, uint8 feeProtocol1) external override lock onlyFactoryOwner {
         unchecked {
             require(
@@ -879,7 +879,7 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
         }
     }
 
-    /// @inheritdoc IUniswapV3PoolOwnerActions
+    /// @inheritdoc IApeSwapV3PoolOwnerActions
     function collectProtocol(
         address recipient,
         uint128 amount0Requested,

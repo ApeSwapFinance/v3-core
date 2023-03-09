@@ -5,10 +5,10 @@ import {SafeCast} from '../libraries/SafeCast.sol';
 import {TickMath} from '../libraries/TickMath.sol';
 
 import {IERC20Minimal} from '../interfaces/IERC20Minimal.sol';
-import {IUniswapV3SwapCallback} from '../interfaces/callback/IUniswapV3SwapCallback.sol';
-import {IUniswapV3Pool} from '../interfaces/IUniswapV3Pool.sol';
+import {IApeSwapV3SwapCallback} from '../interfaces/callback/IApeSwapV3SwapCallback.sol';
+import {IApeSwapV3Pool} from '../interfaces/IApeSwapV3Pool.sol';
 
-contract TestUniswapV3Router is IUniswapV3SwapCallback {
+contract TestApeSwapV3Router is IApeSwapV3SwapCallback {
     using SafeCast for uint256;
 
     // flash swaps for an exact amount of token0 in the output pool
@@ -20,7 +20,7 @@ contract TestUniswapV3Router is IUniswapV3SwapCallback {
     ) external {
         address[] memory pools = new address[](1);
         pools[0] = poolInput;
-        IUniswapV3Pool(poolOutput).swap(
+        IApeSwapV3Pool(poolOutput).swap(
             recipient,
             false,
             -amount0Out.toInt256(),
@@ -38,7 +38,7 @@ contract TestUniswapV3Router is IUniswapV3SwapCallback {
     ) external {
         address[] memory pools = new address[](1);
         pools[0] = poolInput;
-        IUniswapV3Pool(poolOutput).swap(
+        IApeSwapV3Pool(poolOutput).swap(
             recipient,
             true,
             -amount1Out.toInt256(),
@@ -49,7 +49,7 @@ contract TestUniswapV3Router is IUniswapV3SwapCallback {
 
     event SwapCallback(int256 amount0Delta, int256 amount1Delta);
 
-    function uniswapV3SwapCallback(
+    function ApeSwapV3SwapCallback(
         int256 amount0Delta,
         int256 amount1Delta,
         bytes calldata data
@@ -61,12 +61,12 @@ contract TestUniswapV3Router is IUniswapV3SwapCallback {
         if (pools.length == 1) {
             // get the address and amount of the token that we need to pay
             address tokenToBePaid = amount0Delta > 0
-                ? IUniswapV3Pool(msg.sender).token0()
-                : IUniswapV3Pool(msg.sender).token1();
+                ? IApeSwapV3Pool(msg.sender).token0()
+                : IApeSwapV3Pool(msg.sender).token1();
             int256 amountToBePaid = amount0Delta > 0 ? amount0Delta : amount1Delta;
 
-            bool zeroForOne = tokenToBePaid == IUniswapV3Pool(pools[0]).token1();
-            IUniswapV3Pool(pools[0]).swap(
+            bool zeroForOne = tokenToBePaid == IApeSwapV3Pool(pools[0]).token1();
+            IApeSwapV3Pool(pools[0]).swap(
                 msg.sender,
                 zeroForOne,
                 -amountToBePaid,
@@ -75,13 +75,13 @@ contract TestUniswapV3Router is IUniswapV3SwapCallback {
             );
         } else {
             if (amount0Delta > 0) {
-                IERC20Minimal(IUniswapV3Pool(msg.sender).token0()).transferFrom(
+                IERC20Minimal(IApeSwapV3Pool(msg.sender).token0()).transferFrom(
                     payer,
                     msg.sender,
                     uint256(amount0Delta)
                 );
             } else {
-                IERC20Minimal(IUniswapV3Pool(msg.sender).token1()).transferFrom(
+                IERC20Minimal(IApeSwapV3Pool(msg.sender).token1()).transferFrom(
                     payer,
                     msg.sender,
                     uint256(amount1Delta)
