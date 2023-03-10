@@ -12,11 +12,13 @@ async function main() {
   const { tickMath, WNATIVE } = getNetworkConfig(hre.network.name)
   const Factory = await ethers.getContractFactory('ApeSwapV3Factory')
   const factory = await Factory.deploy()
+  await Factory.deployed()
   console.log('Factory deployed at: ', factory.address)
   console.log('npx hardhat verify --network', hre.network.name, factory.address)
 
   const poolHash = await ethers.getContractFactory('poolHash')
   const hash = await poolHash.deploy()
+  await hash.deployed()
   console.log('hash check deployed at: ', hash.address)
   const h = await hash.INIT_CODE_PAIR_HASH()
   console.log('The pool hash is', h)
