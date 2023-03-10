@@ -5,10 +5,10 @@ import {SafeCast} from '../libraries/SafeCast.sol';
 import {TickMath} from '../libraries/TickMath.sol';
 
 import {IERC20Minimal} from '../interfaces/IERC20Minimal.sol';
-import {IApeSwapV3SwapCallback} from '../interfaces/callback/IApeSwapV3SwapCallback.sol';
+import {IUniswapV3SwapCallback} from '../interfaces/callback/IUniswapV3SwapCallback.sol';
 import {IApeSwapV3Pool} from '../interfaces/IApeSwapV3Pool.sol';
 
-contract TestApeSwapV3Router is IApeSwapV3SwapCallback {
+contract TestApeSwapV3Router is IUniswapV3SwapCallback {
     using SafeCast for uint256;
 
     // flash swaps for an exact amount of token0 in the output pool
@@ -49,7 +49,7 @@ contract TestApeSwapV3Router is IApeSwapV3SwapCallback {
 
     event SwapCallback(int256 amount0Delta, int256 amount1Delta);
 
-    function ApeSwapV3SwapCallback(
+    function uniswapV3SwapCallback(
         int256 amount0Delta,
         int256 amount1Delta,
         bytes calldata data

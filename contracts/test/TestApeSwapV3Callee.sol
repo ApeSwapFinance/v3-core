@@ -6,13 +6,13 @@ import {IERC20Minimal} from '../interfaces/IERC20Minimal.sol';
 import {SafeCast} from '../libraries/SafeCast.sol';
 import {TickMath} from '../libraries/TickMath.sol';
 
-import {IApeSwapV3MintCallback} from '../interfaces/callback/IApeSwapV3MintCallback.sol';
-import {IApeSwapV3SwapCallback} from '../interfaces/callback/IApeSwapV3SwapCallback.sol';
-import {IApeSwapV3FlashCallback} from '../interfaces/callback/IApeSwapV3FlashCallback.sol';
+import {IUniswapV3MintCallback} from '../interfaces/callback/IUniswapV3MintCallback.sol';
+import {IUniswapV3SwapCallback} from '../interfaces/callback/IUniswapV3SwapCallback.sol';
+import {IUniswapV3FlashCallback} from '../interfaces/callback/IUniswapV3FlashCallback.sol';
 
 import {IApeSwapV3Pool} from '../interfaces/IApeSwapV3Pool.sol';
 
-contract TestApeSwapV3Callee is IApeSwapV3MintCallback, IApeSwapV3SwapCallback, IApeSwapV3FlashCallback {
+contract TestApeSwapV3Callee is IUniswapV3MintCallback, IUniswapV3SwapCallback, IUniswapV3FlashCallback {
     using SafeCast for uint256;
 
     function swapExact0For1(
@@ -69,7 +69,7 @@ contract TestApeSwapV3Callee is IApeSwapV3MintCallback, IApeSwapV3SwapCallback, 
 
     event SwapCallback(int256 amount0Delta, int256 amount1Delta);
 
-    function ApeSwapV3SwapCallback(
+    function uniswapV3SwapCallback(
         int256 amount0Delta,
         int256 amount1Delta,
         bytes calldata data
@@ -100,7 +100,7 @@ contract TestApeSwapV3Callee is IApeSwapV3MintCallback, IApeSwapV3SwapCallback, 
 
     event MintCallback(uint256 amount0Owed, uint256 amount1Owed);
 
-    function ApeSwapV3MintCallback(
+    function uniswapV3MintCallback(
         uint256 amount0Owed,
         uint256 amount1Owed,
         bytes calldata data
@@ -127,7 +127,7 @@ contract TestApeSwapV3Callee is IApeSwapV3MintCallback, IApeSwapV3SwapCallback, 
         IApeSwapV3Pool(pool).flash(recipient, amount0, amount1, abi.encode(msg.sender, pay0, pay1));
     }
 
-    function ApeSwapV3FlashCallback(
+    function uniswapV3FlashCallback(
         uint256 fee0,
         uint256 fee1,
         bytes calldata data

@@ -3,10 +3,10 @@ pragma solidity =0.8.12;
 
 import {IERC20Minimal} from '../interfaces/IERC20Minimal.sol';
 
-import {IApeSwapV3SwapCallback} from '../interfaces/callback/IApeSwapV3SwapCallback.sol';
+import {IUniswapV3SwapCallback} from '../interfaces/callback/IUniswapV3SwapCallback.sol';
 import {IApeSwapV3Pool} from '../interfaces/IApeSwapV3Pool.sol';
 
-contract TestApeSwapV3SwapPay is IApeSwapV3SwapCallback {
+contract TestApeSwapV3SwapPay is IUniswapV3SwapCallback {
     function swap(
         address pool,
         address recipient,
@@ -25,7 +25,7 @@ contract TestApeSwapV3SwapPay is IApeSwapV3SwapCallback {
         );
     }
 
-    function ApeSwapV3SwapCallback(
+    function uniswapV3SwapCallback(
         int256,
         int256,
         bytes calldata data

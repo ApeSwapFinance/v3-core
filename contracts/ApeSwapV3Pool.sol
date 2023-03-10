@@ -21,9 +21,9 @@ import {SwapMath} from './libraries/SwapMath.sol';
 import {IApeSwapV3PoolDeployer} from './interfaces/IApeSwapV3PoolDeployer.sol';
 import {IApeSwapV3Factory} from './interfaces/IApeSwapV3Factory.sol';
 import {IERC20Minimal} from './interfaces/IERC20Minimal.sol';
-import {IApeSwapV3MintCallback} from './interfaces/callback/IApeSwapV3MintCallback.sol';
-import {IApeSwapV3SwapCallback} from './interfaces/callback/IApeSwapV3SwapCallback.sol';
-import {IApeSwapV3FlashCallback} from './interfaces/callback/IApeSwapV3FlashCallback.sol';
+import {IUniswapV3MintCallback} from './interfaces/callback/IUniswapV3MintCallback.sol';
+import {IUniswapV3SwapCallback} from './interfaces/callback/IUniswapV3SwapCallback.sol';
+import {IUniswapV3FlashCallback} from './interfaces/callback/IUniswapV3FlashCallback.sol';
 
 contract ApeSwapV3Pool is IApeSwapV3Pool, NoDelegateCall {
     using SafeCast for uint256;
@@ -485,7 +485,7 @@ contract ApeSwapV3Pool is IApeSwapV3Pool, NoDelegateCall {
         uint256 balance1Before;
         if (amount0 > 0) balance0Before = balance0();
         if (amount1 > 0) balance1Before = balance1();
-        IApeSwapV3MintCallback(msg.sender).ApeSwapV3MintCallback(amount0, amount1, data);
+        IUniswapV3MintCallback(msg.sender).UniswapV3MintCallback(amount0, amount1, data);
         if (amount0 > 0 && balance0Before + amount0 > balance0()) revert M0();
         if (amount1 > 0 && balance1Before + amount1 > balance1()) revert M1();
 
@@ -802,7 +802,7 @@ contract ApeSwapV3Pool is IApeSwapV3Pool, NoDelegateCall {
             }
 
             uint256 balance0Before = balance0();
-            IApeSwapV3SwapCallback(msg.sender).ApeSwapV3SwapCallback(amount0, amount1, data);
+            IUniswapV3SwapCallback(msg.sender).UniswapV3SwapCallback(amount0, amount1, data);
             if (balance0Before + uint256(amount0) > balance0()) revert IIA();
         } else {
             unchecked {
@@ -810,7 +810,7 @@ contract ApeSwapV3Pool is IApeSwapV3Pool, NoDelegateCall {
             }
 
             uint256 balance1Before = balance1();
-            IApeSwapV3SwapCallback(msg.sender).ApeSwapV3SwapCallback(amount0, amount1, data);
+            IUniswapV3SwapCallback(msg.sender).UniswapV3SwapCallback(amount0, amount1, data);
             if (balance1Before + uint256(amount1) > balance1()) revert IIA();
         }
 
@@ -836,7 +836,7 @@ contract ApeSwapV3Pool is IApeSwapV3Pool, NoDelegateCall {
         if (amount0 > 0) TransferHelper.safeTransfer(token0, recipient, amount0);
         if (amount1 > 0) TransferHelper.safeTransfer(token1, recipient, amount1);
 
-        IApeSwapV3FlashCallback(msg.sender).ApeSwapV3FlashCallback(fee0, fee1, data);
+        IUniswapV3FlashCallback(msg.sender).UniswapV3FlashCallback(fee0, fee1, data);
 
         uint256 balance0After = balance0();
         uint256 balance1After = balance1();
