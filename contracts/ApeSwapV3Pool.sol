@@ -485,7 +485,7 @@ contract ApeSwapV3Pool is IApeSwapV3Pool, NoDelegateCall {
         uint256 balance1Before;
         if (amount0 > 0) balance0Before = balance0();
         if (amount1 > 0) balance1Before = balance1();
-        IUniswapV3MintCallback(msg.sender).UniswapV3MintCallback(amount0, amount1, data);
+        IUniswapV3MintCallback(msg.sender).uniswapV3MintCallback(amount0, amount1, data);
         if (amount0 > 0 && balance0Before + amount0 > balance0()) revert M0();
         if (amount1 > 0 && balance1Before + amount1 > balance1()) revert M1();
 
@@ -802,7 +802,7 @@ contract ApeSwapV3Pool is IApeSwapV3Pool, NoDelegateCall {
             }
 
             uint256 balance0Before = balance0();
-            IUniswapV3SwapCallback(msg.sender).UniswapV3SwapCallback(amount0, amount1, data);
+            IUniswapV3SwapCallback(msg.sender).uniswapV3SwapCallback(amount0, amount1, data);
             if (balance0Before + uint256(amount0) > balance0()) revert IIA();
         } else {
             unchecked {
@@ -810,7 +810,7 @@ contract ApeSwapV3Pool is IApeSwapV3Pool, NoDelegateCall {
             }
 
             uint256 balance1Before = balance1();
-            IUniswapV3SwapCallback(msg.sender).UniswapV3SwapCallback(amount0, amount1, data);
+            IUniswapV3SwapCallback(msg.sender).uniswapV3SwapCallback(amount0, amount1, data);
             if (balance1Before + uint256(amount1) > balance1()) revert IIA();
         }
 
@@ -836,7 +836,7 @@ contract ApeSwapV3Pool is IApeSwapV3Pool, NoDelegateCall {
         if (amount0 > 0) TransferHelper.safeTransfer(token0, recipient, amount0);
         if (amount1 > 0) TransferHelper.safeTransfer(token1, recipient, amount1);
 
-        IUniswapV3FlashCallback(msg.sender).UniswapV3FlashCallback(fee0, fee1, data);
+        IUniswapV3FlashCallback(msg.sender).uniswapV3FlashCallback(fee0, fee1, data);
 
         uint256 balance0After = balance0();
         uint256 balance1After = balance1();
