@@ -282,7 +282,7 @@ contract ApeSwapV3Pool is IApeSwapV3Pool, NoDelegateCall {
             observationIndex: 0,
             observationCardinality: cardinality,
             observationCardinalityNext: cardinalityNext,
-            feeProtocol: 0,
+            feeProtocol: 51,
             unlocked: true
         });
 
@@ -870,8 +870,8 @@ contract ApeSwapV3Pool is IApeSwapV3Pool, NoDelegateCall {
     function setFeeProtocol(uint8 feeProtocol0, uint8 feeProtocol1) external override lock onlyFactoryOwner {
         unchecked {
             require(
-                (feeProtocol0 == 0 || (feeProtocol0 >= 4 && feeProtocol0 <= 10)) &&
-                    (feeProtocol1 == 0 || (feeProtocol1 >= 4 && feeProtocol1 <= 10))
+                (feeProtocol0 == 0 || (feeProtocol0 >= 1 && feeProtocol0 <= 10)) &&
+                    (feeProtocol1 == 0 || (feeProtocol1 >= 1 && feeProtocol1 <= 10))
             );
             uint8 feeProtocolOld = slot0.feeProtocol;
             slot0.feeProtocol = feeProtocol0 + (feeProtocol1 << 4);
