@@ -45,11 +45,16 @@ interface IApeSwapV3Factory {
     /// @param tokenB The contract address of the other token
     /// @param fee The fee collected upon every swap in the pool, denominated in hundredths of a bip
     /// @return pool The pool address
-    function getPool(
-        address tokenA,
-        address tokenB,
-        uint24 fee
-    ) external view returns (address pool);
+    function getPool(address tokenA, address tokenB, uint24 fee) external view returns (address pool);
+
+    /// @notice Returns all pools by index
+    /// @param _index Index of pool
+    /// @return pool The pool address
+    function allPools(uint256 _index) external returns (address pool);
+
+    /// @notice Returns INIT_CODE_PAIR_HASH
+    /// @return init_code_pair_hash The init code pair hash
+    function INIT_CODE_PAIR_HASH() external returns (bytes32 init_code_pair_hash);
 
     /// @notice Creates a pool for the given two tokens and fee
     /// @param tokenA One of the two tokens in the desired pool
@@ -59,11 +64,7 @@ interface IApeSwapV3Factory {
     /// from the fee. The call will revert if the pool already exists, the fee is invalid, or the token arguments
     /// are invalid.
     /// @return pool The address of the newly created pool
-    function createPool(
-        address tokenA,
-        address tokenB,
-        uint24 fee
-    ) external returns (address pool);
+    function createPool(address tokenA, address tokenB, uint24 fee) external returns (address pool);
 
     /// @notice Updates the owner of the factory
     /// @dev Must be called by the current owner

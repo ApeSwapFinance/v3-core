@@ -18,6 +18,11 @@ contract ApeSwapV3Factory is IApeSwapV3Factory, ApeSwapV3PoolDeployer, NoDelegat
     mapping(uint24 => int24) public override feeAmountTickSpacing;
     /// @inheritdoc IApeSwapV3Factory
     mapping(address => mapping(address => mapping(uint24 => address))) public override getPool;
+    /// @inheritdoc IApeSwapV3Factory
+    address[] public override allPools;
+    /// @inheritdoc IApeSwapV3Factory
+    bytes32 public constant override INIT_CODE_PAIR_HASH =
+        keccak256(abi.encodePacked(type(ApeSwapV3Pool).creationCode));
 
     constructor() {
         owner = msg.sender;
@@ -29,6 +34,10 @@ contract ApeSwapV3Factory is IApeSwapV3Factory, ApeSwapV3PoolDeployer, NoDelegat
         emit FeeAmountEnabled(3000, 60);
         feeAmountTickSpacing[10000] = 200;
         emit FeeAmountEnabled(10000, 200);
+    }
+
+    function allPoolsLength() external view returns (uint) {
+        return allPools.length;
     }
 
     /// @inheritdoc IApeSwapV3Factory
@@ -47,6 +56,7 @@ contract ApeSwapV3Factory is IApeSwapV3Factory, ApeSwapV3PoolDeployer, NoDelegat
         getPool[token0][token1][fee] = pool;
         // populate mapping in the reverse direction, deliberate choice to avoid the cost of comparing addresses
         getPool[token1][token0][fee] = pool;
+        allPools.push(pool);
         emit PoolCreated(token0, token1, fee, tickSpacing, pool);
     }
 
